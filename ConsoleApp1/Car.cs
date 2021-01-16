@@ -1,4 +1,4 @@
-﻿class Car
+﻿public class Car
 {
 	public enum CarType
 	{
@@ -10,19 +10,22 @@
 		Convertible,
 		SportUtilityVehicle,
 		Minivan,
-		PickupTruck
+		PickupTruck,
+		Crossover
 	}
 
 	private string brand;
+	private string model;
 	private int price;
 	private int rentalCost;
 	private CarType type;
 
-	public Car(string brand, int price, int rentalCost, CarType type)
+	public Car(string brand, string model, int price, CarType type)
 	{
 		this.brand = brand;
+		this.model = model;
 		this.price = price;
-		this.rentalCost = rentalCost;
+		this.rentalCost = (int)((double)price * 0.003);
 		this.type = type;
 	}
 }

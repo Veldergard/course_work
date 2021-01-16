@@ -1,6 +1,6 @@
 ﻿using System;
 
-class IssuedCars
+public class IssuedCars
 {
 	private Car car;
 	private Client client;

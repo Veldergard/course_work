@@ -1,4 +1,4 @@
-﻿class Client
+﻿public class Client
 {
 	private static int next_id = 0;
 	private int id;

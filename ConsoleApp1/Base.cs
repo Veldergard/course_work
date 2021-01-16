@@ -1,9 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 
-class Base
+public class Database
 {
-	List<Car> carList;
-	List<Client> clientList;
-	List<IssuedCars> rentList;
+	private List<Car> carList;
+	private List<Client> clientList;
+	private List<IssuedCars> rentList;
+
+	public Database()
+	{
+		carList = new List<Car>();
+		clientList = new List<Client>();
+		rentList = new List<IssuedCars>();
+	}
+
+	public void addNewCar(Car car)
+	{
+		carList.Add(car);
+	}
+
+	public void addNewClient(Client client)
+	{
+		clientList.Add(client);
+	}
+
+	public void addNewIssuedCar(IssuedCars car)
+	{
+		rentList.Add(car);
+	}
 }
