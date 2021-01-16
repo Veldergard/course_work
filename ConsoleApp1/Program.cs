@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 class Program
 {
@@ -24,28 +25,81 @@ class Program
 		db.addNewClient(new Client("Виноградов", "Трофим", "Андреевич", "ул. Новогодняя, дом 148", "+7 (900) 590-65-09"));
 		db.addNewClient(new Client("Нестеров", "Марат", "Васильевич", "ул. Вересовская, дом 21", "+7 (982) 132-08-59"));
 		db.addNewClient(new Client("Савина", "Ульяна", "Львовна", "ул. Задворная, дом 60", "+7 (956) 620-57-65"));
-
-		Console.WriteLine(db.rentCar(9, 1));
+		Console.WriteLine(db.rentCar(9, 2, DateTime.Now));
 	}
-	public static void returnCar(Database db, int usrId)
+	public static void takeCar(Database db, Client usr, int usrId)
 	{
-
-	}
-	public static void takeCar(Database db, int usrId)
-	{
+		int carId;
+		carId = 0;
 		while (true)
 		{
-
+			Console.Clear();
+			Console.WriteLine("Выберите автомобиль:");
+			db.printFreeCars();
+			Console.WriteLine("0. Вернуться назад");
+			while (!db.CarDict.ContainsKey(carId))
+			{
+				try
+				{
+					if (carId != 0 && carId != -1 && carId != -2)
+					{
+						Console.WriteLine("Машины не существует");
+						Console.ReadKey();
+					}
+					carId = Convert.ToInt32(Console.ReadLine());
+				}
+				catch (Exception)
+				{
+					Console.WriteLine("Некорректно введена строка");
+					Console.ReadKey();
+					carId = -1;
+					continue;
+				}
+				if (carId == 0)
+				{
+					return;
+				}
+				if (db.CarDict.ContainsKey(carId) && db.CarDict[carId].IsRented)
+				{
+					Console.WriteLine("Эта машина уже арендована");
+					Console.ReadKey();
+					carId = -2;
+				}
+			}
+			Car car = db.CarDict[carId];
+			while (true)
+			{
+				Console.WriteLine("Введите дату в формате dd/mm/yyyy:");
+				String str = Console.ReadLine();
+				DateTime dateValue;
+				if (DateTime.TryParseExact(str, "dd/mm/yyyy", new CultureInfo("en-US"), DateTimeStyles.None, out dateValue) && dateValue > DateTime.Now)
+				{
+					long price = (long)(Math.Ceiling((double)(dateValue - DateTime.Today).Hours / 24.0) * car.RentalCost);
+					Console.WriteLine("Вы действительно хотите взять " + car.Brand + " " + car.Model + " за " + price + " рублей?[Да/Нет]");
+					str = Console.ReadLine();
+					if (str.Equals("Да"))
+					{
+						Console.WriteLine("Машина успешно приобретена на " + (dateValue - DateTime.Now));
+						db.rentCar(carId, usrId, dateValue);
+					}
+					break;
+				}
+				else
+				{
+					Console.WriteLine("Вы ввели некорректную дату");
+					Console.ReadKey();
+				}
+			}
 		}
 	}
-	public static void runRentMenu(Database db, int usrId)
+	public static void runRentMenu(Database db, Client usr, int usrId)
 	{
 		Console.Clear();
 		string str;
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine("Выберите желаемое действие:\n1.Взять машину в аренду\n2.Вернуть машину\n0.Выйти");
+			Console.WriteLine("Выберите желаемое действие:\n1.Взять машину в аренду\n2.Вернуть машину\n0.В начало");
 			str = Console.ReadLine();
 			if (str.Equals("0"))
 			{
@@ -53,11 +107,26 @@ class Program
 			}
 			else if (str.Equals("1"))
 			{
-				takeCar(db, usrId);
+				if (!usr.IsRented)
+				{
+					takeCar(db, usr, usrId);
+				}
+				else
+				{
+					Console.WriteLine("Вы еще не вернули прошлую машину");
+					Console.ReadKey();
+				}
 			}
 			else if (str.Equals("2"))
 			{
-				returnCar(db, usrId);
+				RentedCar rent = db.deleteRentedCar(usr);
+				if (rent != null && rent.ReturnDate < DateTime.Now)
+				{
+					TimeSpan penalty = DateTime.Now - rent.ReturnDate;
+					Console.WriteLine("Вам назначен штраф " + (Math.Ceiling((double)penalty.Hours / 24.0) * rent.Car.RentalCost * 3) + " рублей");
+					db.addIncome(penalty.Days * rent.Car.RentalCost * 3);
+					Console.ReadKey();
+				}
 			}
 			else
 			{
@@ -83,6 +152,7 @@ class Program
 				{
 					Console.WriteLine("Некорректно введена строка или пользователя не существует");
 					usrId = -1;
+					Console.ReadKey();
 					continue;
 				}
 				if (usrId == 0)
@@ -91,7 +161,7 @@ class Program
 				}
 			}
 		}
-		runRentMenu(db, usrId);
+		runRentMenu(db, db.UsrDict[usrId], usrId);
 	}
 	public static void register(Database db)
 	{
@@ -141,5 +211,7 @@ class Program
 		Database db = new Database();
 		initDB(db);
 		run(db);
+		Console.WriteLine("На аренде авто было заработано " + db.Income + " рублей.");
+		Console.ReadKey();
 	}
 }

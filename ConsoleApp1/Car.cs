@@ -26,7 +26,7 @@
 	public string Brand { get => brand; set => brand = value; }
 	public string Model { get => model; set => model = value; }
 	public int Price { get => price; set => price = value; }
-	public CarType CarType1 { get => carType; set => carType = value; }
+	public CarType ThisCarType { get => carType; set => carType = value; }
 	public int RentalCost { get => rentalCost; set => rentalCost = value; }
 	public bool IsRented { get => isRented; set => isRented = value; }
 }
