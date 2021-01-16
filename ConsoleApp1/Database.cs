@@ -3,32 +3,37 @@ using System.Collections.Generic;
 
 public class Database
 {
-	private static int carId = 0;
-	private static int usrId = 0;
-	private static int rentId = 0;
+	private static int carId = 1;
+	private static int usrId = 1;
+	private static int rentId = 1;
 	private Dictionary<int, Car> carDict;
 	private Dictionary<int, Client> usrDict;
 	private Dictionary<int, IssuedCar> rentDict;
+	private long money;
 	public Database()
 	{
 		carDict = new Dictionary<int, Car>();
 		usrDict = new Dictionary<int, Client>();
 		rentDict = new Dictionary<int, IssuedCar>();
 	}
-	public void addNewCar(Car car)
+	public Dictionary<int, Client> UsrDict { get => usrDict; }
+	public int addNewCar(Car car)
 	{
 		carDict.Add(carId, car);
 		carId++;
+		return carId - 1;
 	}
-	public void addNewClient(Client client)
+	public int addNewClient(Client client)
 	{
 		usrDict.Add(usrId, client);
 		usrId++;
+		return usrId - 1;
 	}
-	public void addNewIssuedCar(IssuedCar car)
+	public int addNewRent(IssuedCar car)
 	{
 		rentDict.Add(rentId, car);
 		rentId++;
+		return rentId - 1;
 	}
 	public string rentCar(int carId, int usrId)
 	{
@@ -38,6 +43,8 @@ public class Database
 			{
 				carDict[carId].IsRented = true;
 				usrDict[usrId].IsRented = true;
+				addNewRent(new IssuedCar(carDict[carId], usrDict[usrId], DateTime.Now, DateTime.Now));
+				usrDict[usrId].RentCount++;
 				return "Клиент " + usrDict[usrId].Surname + " " + usrDict[usrId].Name + " взял в аренду " + carDict[carId].Brand + " " + carDict[carId].Model;
 			}
 			else if (carDict[carId].IsRented)
@@ -50,5 +57,12 @@ public class Database
 			}
 		}
 		return "Вы выбрали несуществующую машину или клиента";
+	}
+	public void printUsers()
+	{
+		foreach (KeyValuePair<int, Client> keyValue in usrDict)
+		{
+			Console.WriteLine(keyValue.Key + ". " + keyValue.Value.Surname + " " + keyValue.Value.Name + " " + keyValue.Value.Patronymic);
+		}
 	}
 }

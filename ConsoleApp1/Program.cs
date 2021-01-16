@@ -25,11 +25,121 @@ class Program
 		db.addNewClient(new Client("Нестеров", "Марат", "Васильевич", "ул. Вересовская, дом 21", "+7 (982) 132-08-59"));
 		db.addNewClient(new Client("Савина", "Ульяна", "Львовна", "ул. Задворная, дом 60", "+7 (956) 620-57-65"));
 
-		Console.WriteLine(db.rentCar(8, 0));
+		Console.WriteLine(db.rentCar(9, 1));
+	}
+	public static void returnCar(Database db, int usrId)
+	{
+
+	}
+	public static void takeCar(Database db, int usrId)
+	{
+		while (true)
+		{
+
+		}
+	}
+	public static void runRentMenu(Database db, int usrId)
+	{
+		Console.Clear();
+		string str;
+		while (true)
+		{
+			Console.Clear();
+			Console.WriteLine("Выберите желаемое действие:\n1.Взять машину в аренду\n2.Вернуть машину\n0.Выйти");
+			str = Console.ReadLine();
+			if (str.Equals("0"))
+			{
+				break;
+			}
+			else if (str.Equals("1"))
+			{
+				takeCar(db, usrId);
+			}
+			else if (str.Equals("2"))
+			{
+				returnCar(db, usrId);
+			}
+			else
+			{
+				Console.WriteLine("Введена несуществующая опция");
+			}
+		}
+	}
+	public static void login(Database db, int usrId)
+	{
+		if (usrId == -1)
+		{
+			Console.Clear();
+			Console.WriteLine("Выберите своего пользователя:");
+			db.printUsers();
+			Console.WriteLine("0. Вернуться к началу");
+			while (!db.UsrDict.ContainsKey(usrId))
+			{
+				try
+				{
+					usrId = Convert.ToInt32(Console.ReadLine());
+				}
+				catch (Exception)
+				{
+					Console.WriteLine("Некорректно введена строка или пользователя не существует");
+					usrId = -1;
+					continue;
+				}
+				if (usrId == 0)
+				{
+					return;
+				}
+			}
+		}
+		runRentMenu(db, usrId);
+	}
+	public static void register(Database db)
+	{
+		Console.Clear();
+		Console.Write("Введите свою фамилию: ");
+		string surname = Console.ReadLine();
+		Console.Write("Введите своё имя: ");
+		string name = Console.ReadLine();
+		Console.Write("Введите своё отчество: ");
+		string patronymic = Console.ReadLine();
+		Console.Write("Введите свой адрес: ");
+		string address = Console.ReadLine();
+		Console.Write("Введите свой номер телефона: ");
+		string phoneNumb = Console.ReadLine();
+		Client client = new Client(surname, name, patronymic, address, phoneNumb);
+		int usrId = db.addNewClient(client);
+		login(db, usrId);
+	}
+	public static void run(Database db)
+	{
+		string str;
+		while (true)
+		{
+			Console.Clear();
+			Console.WriteLine("Выберите желаемое действие:\n1.Создать аккаунт клиента\n2.Войти в аккаунт клиента\n0.Выйти");
+			str = Console.ReadLine();
+			if (str.Equals("0"))
+			{
+				break;
+			}
+			else if (str.Equals("1"))
+			{
+				register(db);
+			}
+			else if (str.Equals("2"))
+			{
+				login(db, -1);
+			}
+			else
+			{
+				Console.WriteLine("Введена несуществующая опция");
+			}
+		}
 	}
 	static void Main(string[] args)
 	{
 		Database db = new Database();
 		initDB(db);
+		run(db);
 	}
 }
