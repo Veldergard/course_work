@@ -5,18 +5,18 @@ class Program
 {
 	static void initDB(Database db)
 	{
-		db.addNewCar(new Car("Toyota", "Camry", 1750000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Toyota", "Corolla", 1000000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Renault", "Logan", 675000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Lada", "Granta", 489000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Hyundai", "Solaris", 805000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Kia", "Rio", 834000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Audi", "R8", 11000000, Car.CarType.SportsCar));
-		db.addNewCar(new Car("Hyundai", "Tucson", 1680000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Tesla", "Cybertruck", 5900000, Car.CarType.PickupTruck));
-		db.addNewCar(new Car("Tesla", "Model S", 9800000, Car.CarType.Sedan));
-		db.addNewCar(new Car("Volkswagen", "Golf", 1765000, Car.CarType.Hatchback));
-		db.addNewCar(new Car("Honda", "Odyssey", 2350000, Car.CarType.Minivan));
+		db.addNewCar(new Car("Toyota", "Camry", 1750000, Car.CarType.Sedan, 2020));
+		db.addNewCar(new Car("Toyota", "Corolla", 1000000, Car.CarType.Sedan, 2018));
+		db.addNewCar(new Car("Renault", "Logan", 675000, Car.CarType.Sedan, 2016));
+		db.addNewCar(new Car("Lada", "Granta", 489000, Car.CarType.Sedan, 2015));
+		db.addNewCar(new Car("Hyundai", "Solaris", 805000, Car.CarType.Sedan, 2017));
+		db.addNewCar(new Car("Kia", "Rio", 834000, Car.CarType.Sedan, 2019));
+		db.addNewCar(new Car("Audi", "R8", 11000000, Car.CarType.SportsCar, 2012));
+		db.addNewCar(new Car("Hyundai", "Tucson", 1680000, Car.CarType.Sedan, 2019));
+		db.addNewCar(new Car("Tesla", "Cybertruck", 5900000, Car.CarType.PickupTruck, 2021));
+		db.addNewCar(new Car("Tesla", "Model S", 9800000, Car.CarType.Sedan, 2021));
+		db.addNewCar(new Car("Volkswagen", "Golf", 1765000, Car.CarType.Hatchback, 2018));
+		db.addNewCar(new Car("Honda", "Odyssey", 2350000, Car.CarType.Minivan, 2017));
 
 		db.addNewClient(new Client("Жмышенко", "Валерий", "Альбертович", "пер. Космонавтов, дом 23", "+7 (903) 903-09-67"));
 		db.addNewClient(new Client("Соловьёв", "Фёдор", "Леонидович", "бульвар Ладыгина, дом 19", "+7 (948) 977-05-19"));
@@ -25,70 +25,72 @@ class Program
 		db.addNewClient(new Client("Виноградов", "Трофим", "Андреевич", "ул. Новогодняя, дом 148", "+7 (900) 590-65-09"));
 		db.addNewClient(new Client("Нестеров", "Марат", "Васильевич", "ул. Вересовская, дом 21", "+7 (982) 132-08-59"));
 		db.addNewClient(new Client("Савина", "Ульяна", "Львовна", "ул. Задворная, дом 60", "+7 (956) 620-57-65"));
-		Console.WriteLine(db.rentCar(9, 2, DateTime.Now));
+		db.rentCar(9, 2, DateTime.Now, 10000);
 	}
 	public static void takeCar(Database db, Client usr, int usrId)
 	{
 		int carId;
 		carId = 0;
+		Console.Clear();
+		Console.WriteLine("Выберите автомобиль:");
+		db.printFreeCars();
+		Console.WriteLine("0. Вернуться назад");
+		while (!db.CarDict.ContainsKey(carId))
+		{
+			try
+			{
+				if (carId != 0 && carId != -1 && carId != -2)
+				{
+					Console.WriteLine("Машины не существует");
+					Console.ReadKey();
+				}
+				carId = Convert.ToInt32(Console.ReadLine());
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Некорректно введена строка");
+				Console.ReadKey();
+				carId = -1;
+				continue;
+			}
+			if (carId == 0)
+			{
+				return;
+			}
+			if (db.CarDict.ContainsKey(carId) && db.CarDict[carId].IsRented)
+			{
+				Console.WriteLine("Эта машина уже арендована");
+				Console.ReadKey();
+				carId = -2;
+			}
+		}
+		Car car = db.CarDict[carId];
 		while (true)
 		{
-			Console.Clear();
-			Console.WriteLine("Выберите автомобиль:");
-			db.printFreeCars();
-			Console.WriteLine("0. Вернуться назад");
-			while (!db.CarDict.ContainsKey(carId))
+			Console.WriteLine("Введите дату в формате dd/MM/yyyy:");
+			String str = Console.ReadLine();
+			DateTime dateValue;
+			if (DateTime.TryParseExact(str, "dd/MM/yyyy", new CultureInfo("en-US"), DateTimeStyles.None, out dateValue) && dateValue > DateTime.Now)
 			{
-				try
+				double priceModifier = 1 - (usr.RentCount / 50 + (car.Year - DateTime.Now.Year) / 100);
+				if (priceModifier < 0.80)
 				{
-					if (carId != 0 && carId != -1 && carId != -2)
-					{
-						Console.WriteLine("Машины не существует");
-						Console.ReadKey();
-					}
-					carId = Convert.ToInt32(Console.ReadLine());
+					priceModifier = 0.80;
 				}
-				catch (Exception)
+				long price = (long)(Math.Ceiling((dateValue - DateTime.Today).TotalHours / 24.0) * priceModifier * car.RentalCost);
+				Console.WriteLine("Вы действительно хотите взять " + car.Brand + " " + car.Model + " за " + price + " рублей?[Да/Нет]");
+				str = Console.ReadLine();
+				if (str.Equals("Да"))
 				{
-					Console.WriteLine("Некорректно введена строка");
+					Console.WriteLine("Машина успешно приобретена на " + (long)(dateValue - DateTime.Now).TotalDays + " дней");
+					db.rentCar(carId, usrId, dateValue, price);
 					Console.ReadKey();
-					carId = -1;
-					continue;
 				}
-				if (carId == 0)
-				{
-					return;
-				}
-				if (db.CarDict.ContainsKey(carId) && db.CarDict[carId].IsRented)
-				{
-					Console.WriteLine("Эта машина уже арендована");
-					Console.ReadKey();
-					carId = -2;
-				}
+				break;
 			}
-			Car car = db.CarDict[carId];
-			while (true)
+			else
 			{
-				Console.WriteLine("Введите дату в формате dd/mm/yyyy:");
-				String str = Console.ReadLine();
-				DateTime dateValue;
-				if (DateTime.TryParseExact(str, "dd/mm/yyyy", new CultureInfo("en-US"), DateTimeStyles.None, out dateValue) && dateValue > DateTime.Now)
-				{
-					long price = (long)(Math.Ceiling((double)(dateValue - DateTime.Today).Hours / 24.0) * car.RentalCost);
-					Console.WriteLine("Вы действительно хотите взять " + car.Brand + " " + car.Model + " за " + price + " рублей?[Да/Нет]");
-					str = Console.ReadLine();
-					if (str.Equals("Да"))
-					{
-						Console.WriteLine("Машина успешно приобретена на " + (dateValue - DateTime.Now));
-						db.rentCar(carId, usrId, dateValue);
-					}
-					break;
-				}
-				else
-				{
-					Console.WriteLine("Вы ввели некорректную дату");
-					Console.ReadKey();
-				}
+				Console.WriteLine("Вы ввели некорректную дату");
 			}
 		}
 	}
@@ -120,11 +122,26 @@ class Program
 			else if (str.Equals("2"))
 			{
 				RentedCar rent = db.deleteRentedCar(usr);
-				if (rent != null && rent.ReturnDate < DateTime.Now)
+				if (rent == null)
+				{
+					Console.WriteLine("Вы еще не брали машину");
+					Console.ReadKey();
+				}
+				else if (rent != null && rent.ReturnDate < DateTime.Now)
 				{
 					TimeSpan penalty = DateTime.Now - rent.ReturnDate;
-					Console.WriteLine("Вам назначен штраф " + (Math.Ceiling((double)penalty.Hours / 24.0) * rent.Car.RentalCost * 3) + " рублей");
+					Console.WriteLine("Вам назначен штраф " + (Math.Ceiling((double)penalty.TotalHours / 24.0) * rent.Car.RentalCost * 3) + " рублей за задержку");
 					db.addIncome(penalty.Days * rent.Car.RentalCost * 3);
+					Console.ReadKey();
+				}
+				Console.Clear();
+				Console.WriteLine("Напишите о состоянии машины после возврата. Если ничего не испорчено, то оставьте пустым:");
+				String s = Console.ReadLine();
+				if (s.Length > 0)
+				{
+					int penalty = (int)(s.Length * rent.Car.RentalCost * 0.4);
+					db.addIncome(penalty);
+					Console.WriteLine("Вам назначен штраф " + penalty + " рублей за порчу автомобиля");
 					Console.ReadKey();
 				}
 			}

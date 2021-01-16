@@ -39,7 +39,7 @@ public class Database
 		rentId++;
 		return rentId - 1;
 	}
-	public string rentCar(int carId, int usrId, DateTime dateTime)
+	public void rentCar(int carId, int usrId, DateTime dateTime, long price)
 	{
 		if (carDict.ContainsKey(carId) && usrDict.ContainsKey(usrId))
 		{
@@ -49,18 +49,22 @@ public class Database
 				usrDict[usrId].IsRented = true;
 				addNewRent(new RentedCar(carDict[carId], usrDict[usrId], DateTime.Today, dateTime));
 				usrDict[usrId].RentCount++;
-				return "Клиент " + usrDict[usrId].Surname + " " + usrDict[usrId].Name + " взял в аренду " + carDict[carId].Brand + " " + carDict[carId].Model;
+				addIncome(price);
+				Console.WriteLine("Клиент " + usrDict[usrId].Surname + " " + usrDict[usrId].Name + " взял в аренду " + carDict[carId].Brand + " " + carDict[carId].Model + " за " + price + " рублей");
+				return;
 			}
 			else if (carDict[carId].IsRented)
 			{
-				return "Машина " + carDict[carId].Brand + " " + carDict[carId].Model + " уже арендована.";
+				Console.WriteLine("Машина " + carDict[carId].Brand + " " + carDict[carId].Model + " уже арендована.");
+				return;
 			}
 			else
 			{
-				return "Клиент " + usrDict[usrId].Surname + " " + usrDict[usrId].Name + "уже арендовал машину";
+				Console.WriteLine("Клиент " + usrDict[usrId].Surname + " " + usrDict[usrId].Name + "уже арендовал машину");
+				return;
 			}
 		}
-		return "Вы выбрали несуществующую машину или клиента";
+		Console.WriteLine("Вы выбрали несуществующую машину или клиента");
 	}
 	public void printUsers()
 	{
@@ -80,7 +84,7 @@ public class Database
 		{
 			if (!keyValue.Value.IsRented)
 			{
-				Console.WriteLine(keyValue.Key + ". " + keyValue.Value.Brand + " " + keyValue.Value.Model + " Цена: " + keyValue.Value.Price + " Стоимость проката за час: " + keyValue.Value.RentalCost);
+				Console.WriteLine(keyValue.Key + ". " + keyValue.Value.Brand + " " + keyValue.Value.Model + " Цена: " + keyValue.Value.Price + " Стоимость проката за час: " + keyValue.Value.RentalCost + " Год выпуска: " + keyValue.Value.Year);
 			}
 		}
 	}
