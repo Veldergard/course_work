@@ -2,7 +2,7 @@
 
 class Car
 {
-	public enum Type
+	public enum CarType
 	{
 		Sedan,
 		Coupe,
@@ -18,9 +18,9 @@ class Car
 	private string brand;
 	private int price;
 	private int rentalCost;
-	private Type type;
+	private CarType type;
 
-	public Car(string brand, int price, int rentalCost, Type type)
+	public Car(string brand, int price, int rentalCost, CarType type)
 	{
 		this.brand = brand;
 		this.price = price;
