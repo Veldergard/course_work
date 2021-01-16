@@ -25,7 +25,7 @@ class Program
 		db.addNewClient(new Client("Нестеров", "Марат", "Васильевич", "ул. Вересовская, дом 21", "+7 (982) 132-08-59"));
 		db.addNewClient(new Client("Савина", "Ульяна", "Львовна", "ул. Задворная, дом 60", "+7 (956) 620-57-65"));
 
-		db.rentCar(0, 8);
+		Console.WriteLine(db.rentCar(8, 0));
 	}
 	static void Main(string[] args)
 	{

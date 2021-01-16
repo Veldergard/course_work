@@ -6,7 +6,6 @@ public class IssuedCar
 	private Client client;
 	private DateTime dateOfIssue;
 	private DateTime returnDate;
-
 	public IssuedCar(Car car, Client client, DateTime dateOfIssue, DateTime returnDate)
 	{
 		this.car = car;

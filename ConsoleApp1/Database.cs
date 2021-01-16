@@ -1,41 +1,54 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class Database
 {
-	private List<Car> carList;
-	private List<Client> clientList;
-	private List<IssuedCar> rentList;
-
+	private static int carId = 0;
+	private static int usrId = 0;
+	private static int rentId = 0;
+	private Dictionary<int, Car> carDict;
+	private Dictionary<int, Client> usrDict;
+	private Dictionary<int, IssuedCar> rentDict;
 	public Database()
 	{
-		carList = new List<Car>();
-		clientList = new List<Client>();
-		rentList = new List<IssuedCar>();
+		carDict = new Dictionary<int, Car>();
+		usrDict = new Dictionary<int, Client>();
+		rentDict = new Dictionary<int, IssuedCar>();
 	}
-
 	public void addNewCar(Car car)
 	{
-		carList.Add(car);
+		carDict.Add(carId, car);
+		carId++;
 	}
-
 	public void addNewClient(Client client)
 	{
-		clientList.Add(client);
+		usrDict.Add(usrId, client);
+		usrId++;
 	}
-
 	public void addNewIssuedCar(IssuedCar car)
 	{
-		rentList.Add(car);
+		rentDict.Add(rentId, car);
+		rentId++;
 	}
-
-	public string rentCar(int userId, int carId)
+	public string rentCar(int carId, int usrId)
 	{
-		Car car = carList.Find(x => x.getId() == carId);
-		Client user = clientList.Find(x => x.getId() == userId);
-		if (!car.getRent() || !user.getRent())
+		if (carDict.ContainsKey(carId) && usrDict.ContainsKey(usrId))
 		{
-			return "Машина" + car.get;
+			if (!carDict[carId].IsRented && !usrDict[usrId].IsRented)
+			{
+				carDict[carId].IsRented = true;
+				usrDict[usrId].IsRented = true;
+				return "Клиент " + usrDict[usrId].Surname + " " + usrDict[usrId].Name + " взял в аренду " + carDict[carId].Brand + " " + carDict[carId].Model;
+			}
+			else if (carDict[carId].IsRented)
+			{
+				return "Машина " + carDict[carId].Brand + " " + carDict[carId].Model + " уже арендована.";
+			}
+			else
+			{
+				return "Клиент " + usrDict[usrId].Surname + " " + usrDict[usrId].Name + "уже арендовал машину";
+			}
 		}
-		return 0;
+		return "Вы выбрали несуществующую машину или клиента";
 	}
 }
